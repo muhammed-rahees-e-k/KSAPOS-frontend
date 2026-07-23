@@ -1,10 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Search, Bell, Maximize, RefreshCcw, User } from 'lucide-react';
+import { RefreshCcw, HelpCircle, Maximize, Menu, RotateCcw, Clock, LogOut, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { translations } from '@/utils/translations';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  onReturnsClick?: () => void;
+  onCloseShiftClick?: () => void;
+  onHelpClick?: () => void;
+  onSignOutClick?: () => void;
+  language?: 'EN' | 'AR';
+  onLanguageChange?: (lang: 'EN' | 'AR') => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({
+  searchQuery = '',
+  onSearchChange,
+  onReturnsClick,
+  onCloseShiftClick,
+  onHelpClick,
+  onSignOutClick,
+  language: initialLanguage = 'EN',
+  onLanguageChange,
+}) => {
   const [time, setTime] = useState(new Date());
+  const [language, setLanguage] = useState<'EN' | 'AR'>(initialLanguage);
+
+  useEffect(() => {
+    setLanguage(initialLanguage);
+  }, [initialLanguage]);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -19,69 +45,165 @@ export const Header: React.FC = () => {
     }
   };
 
+  const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  const t = translations[language];
+
   return (
-    <header className="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 md:px-4 lg:px-8 z-30 sticky top-0 shadow-md transition-all text-slate-100">
-      {/* Left: Logo & Menu */}
-      <div className="flex items-center space-x-2 md:space-x-4 w-auto lg:w-1/4">
-        <Button variant="ghost" size="icon" className="text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl h-10 w-10 transition-colors">
-          <Menu className="w-5 h-5" />
-        </Button>
-        <div className="flex items-center select-none">
-          <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
+    <header className="h-13 bg-slate-900 border-b border-slate-800/90 flex items-center justify-between px-4 z-30 sticky top-0 shadow-md text-slate-100 select-none shrink-0">
+      {/* Left Group: Brand Logo & Search Input */}
+      <div className="flex items-center space-x-3 md:space-x-4">
+        <div className="flex items-center space-x-2 shrink-0">
+          <Button variant="ghost" size="icon" className="text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg h-8 w-8 p-0">
+            <Menu className="w-4.5 h-4.5" />
+          </Button>
+          <span className="text-lg font-black tracking-tight text-white hidden sm:inline-block">
             KSA<span className="text-blue-500">POS</span>
-          </h1>
+          </span>
         </div>
-      </div>
-      
-      {/* Center: Search Bar */}
-      <div className="flex-1 max-w-2xl px-2 md:px-4 flex justify-center hidden sm:flex">
-        <div className="relative w-full max-w-lg group">
-          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400 transition-colors" />
+
+        {/* Search Bar with barcode scanner icon and F3 badge */}
+        <div className="relative w-64 sm:w-80 lg:w-96">
           <Input 
-            className="w-full bg-slate-800/80 border-transparent text-slate-100 focus:bg-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all rounded-full pl-11 pr-12 h-11 text-[13px] font-semibold placeholder:text-slate-400 shadow-inner" 
-            placeholder="Search products, orders, or customers..." 
+            value={searchQuery}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            className="w-full bg-slate-800/90 border-slate-700/80 text-white focus:bg-slate-800 focus:border-blue-500 rounded-lg pl-3 pr-14 h-8.5 text-xs font-medium placeholder:text-slate-400 shadow-inner transition-all" 
+            placeholder={t.searchPlaceholder} 
           />
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-            <kbd className="hidden md:inline-flex h-5 items-center gap-1 rounded bg-slate-700 px-1.5 font-mono text-[10px] font-medium text-slate-300 border-none">
-              F3
-            </kbd>
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center space-x-1 pointer-events-none text-slate-400">
+            <ScanLine className="w-3.5 h-3.5 text-blue-400" />
+            <kbd className="hidden md:inline-block text-[9px] font-mono bg-slate-700 text-slate-300 px-1 py-0.2 rounded border border-slate-600">F3</kbd>
           </div>
         </div>
-      </div>
-      
-      {/* Mobile Search Icon */}
-      <div className="flex sm:hidden flex-1 justify-end pr-2">
-        <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl h-10 w-10">
-          <Search className="w-5 h-5" />
-        </Button>
       </div>
 
-      {/* Right: Actions & Profile */}
-      <div className="flex items-center justify-end space-x-1 md:space-x-3 w-auto lg:w-1/4">
-        <div className="hidden md:flex items-center space-x-1 border-r border-slate-700 pr-3 mr-1">
-          <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl h-10 w-10 transition-all">
-            <RefreshCcw className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl h-10 w-10 transition-all" onClick={handleFullscreen}>
-            <Maximize className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl h-10 w-10 relative transition-all">
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border border-slate-900"></span>
+      {/* Right Group: Neatly Spaced Toolbar Items */}
+      <div className="flex items-center space-x-2.5 sm:space-x-3 text-xs font-medium">
+        
+        {/* Terminal Station info badge */}
+        <div className="hidden lg:flex items-center bg-slate-800/90 px-2.5 py-1 rounded-md text-slate-300 font-mono font-bold text-[11px] border border-slate-700/80 shadow-2xs">
+          <span className="text-blue-400">{t.hq}</span>
+          <span className="mx-1 text-slate-500">·</span>
+          <span>{t.pos01}</span>
+        </div>
+
+        {/* Vertical Divider */}
+        <div className="h-4 w-px bg-slate-800 hidden lg:block" />
+
+        {/* Quick Action Link Buttons */}
+        <div className="flex items-center space-x-2">
+          <button 
+            type="button"
+            onClick={onReturnsClick}
+            className="flex items-center space-x-1.5 text-amber-400 hover:text-amber-300 font-bold text-xs bg-amber-950/40 hover:bg-amber-950/70 border border-amber-500/30 px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-2xs"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>{t.returns}</span>
+          </button>
+
+          <button 
+            type="button"
+            onClick={onCloseShiftClick}
+            className="flex items-center space-x-1.5 text-slate-300 hover:text-white font-semibold text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700/80 px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-2xs"
+          >
+            <Clock className="w-3 h-3 text-slate-400" />
+            <span>{t.closeShift}</span>
+          </button>
+        </div>
+
+        {/* Vertical Divider */}
+        <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+
+        {/* Live Clock & Sync Indicator */}
+        <div className="flex items-center space-x-1.5 bg-slate-800/80 px-2 py-1 rounded-md border border-slate-700/80 text-slate-200 font-bold font-mono text-xs shadow-2xs">
+          <span className="relative flex h-2 w-2 mr-0.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>{formattedTime}</span>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-4.5 w-4.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-transform active:rotate-180 p-0"
+            title="Sync Data"
+          >
+            <RefreshCcw className="w-3 h-3" />
           </Button>
         </div>
-        
-        <Button variant="ghost" className="h-11 px-2 md:pl-2 md:pr-4 bg-transparent hover:bg-slate-800 rounded-xl transition-all border border-transparent">
-          <div className="w-7 h-7 bg-blue-600 text-white rounded-lg flex items-center justify-center md:mr-2 shadow-sm">
-            <User className="w-4 h-4" />
-          </div>
-          <div className="hidden md:flex flex-col items-start text-left">
-            <span className="text-[13px] font-bold leading-none mb-0.5 text-slate-100">M.Rahees</span>
-            <span className="text-[9px] text-slate-400 uppercase tracking-widest font-black">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-        </Button>
+
+        {/* Vertical Divider */}
+        <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+
+        {/* Utility Icon Buttons */}
+        <div className="flex items-center space-x-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onHelpClick}
+            className="h-8 w-8 text-cyan-400 hover:text-cyan-300 hover:bg-slate-800 rounded-lg transition-colors p-0 cursor-pointer"
+            title="Help & Keyboard Shortcuts"
+          >
+            <HelpCircle className="w-4 h-4" />
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors p-0"
+            onClick={handleFullscreen}
+            title="Toggle Fullscreen"
+          >
+            <Maximize className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Language Switcher AR / EN (Matching User Reference Image) */}
+        <div className="flex items-center bg-[#111827] p-0.5 rounded-xl border border-slate-700/80 font-black text-xs shadow-inner select-none">
+          <button 
+            type="button"
+            onClick={() => {
+              setLanguage('AR');
+              onLanguageChange?.('AR');
+            }}
+            className={`px-2.5 py-0.5 rounded-lg transition-all cursor-pointer ${
+              language === 'AR' 
+                ? 'bg-[#2563EB] text-white font-extrabold shadow-md' 
+                : 'text-slate-400 font-extrabold hover:text-slate-200'
+            }`}
+          >
+            AR
+          </button>
+          <button 
+            type="button"
+            onClick={() => {
+              setLanguage('EN');
+              onLanguageChange?.('EN');
+            }}
+            className={`px-2.5 py-0.5 rounded-lg transition-all cursor-pointer ${
+              language === 'EN' 
+                ? 'bg-[#2563EB] text-white font-extrabold shadow-md' 
+                : 'text-slate-400 font-extrabold hover:text-slate-200'
+            }`}
+          >
+            EN
+          </button>
+        </div>
+
+        {/* Sign Out */}
+        <button 
+          type="button"
+          onClick={onSignOutClick}
+          className="flex items-center space-x-1 text-slate-400 hover:text-rose-400 font-medium transition-colors cursor-pointer text-xs ml-0.5"
+          title={t.signOut}
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden xl:inline-block">{t.signOut}</span>
+        </button>
       </div>
     </header>
   );
 };
+
+
+
+
 

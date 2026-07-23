@@ -1,42 +1,62 @@
 
 import React from 'react';
 import { Delete } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 interface NumericKeypadProps {
   onKeyPress: (key: string) => void;
   onClear: () => void;
   onBackspace: () => void;
+  darkTheme?: boolean;
+  isCompact?: boolean;
 }
 
-export const NumericKeypad: React.FC<NumericKeypadProps> = ({ onKeyPress, onBackspace }) => {
+export const NumericKeypad: React.FC<NumericKeypadProps> = ({ 
+  onKeyPress, 
+  onBackspace,
+  darkTheme = true,
+  isCompact = false,
+}) => {
   const keys = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.'];
 
+  const buttonHeight = isCompact ? 'h-7 sm:h-7.5 md:h-8 text-sm sm:text-base' : 'h-8 sm:h-9 md:h-9.5 text-base sm:text-lg';
+
   return (
-    <div className="grid grid-cols-3 gap-2 lg:gap-3">
+    <div className="grid grid-cols-3 gap-1 select-none">
       {keys.map((key) => (
-        <motion.div key={key} whileTap={{ scale: 0.94 }}>
-          <Button
-            variant="outline"
-            className="w-full h-16 text-[1.75rem] font-black bg-white hover:bg-slate-50 text-slate-800 border-0 shadow-[0_4px_0_rgb(226,232,240)] hover:translate-y-[2px] hover:shadow-[0_2px_0_rgb(226,232,240)] active:translate-y-[4px] active:shadow-none rounded-xl lg:rounded-2xl transition-all"
-            onClick={() => onKeyPress(key)}
-          >
-            {key}
-          </Button>
-        </motion.div>
-      ))}
-      <motion.div whileTap={{ scale: 0.94 }}>
-        <Button
-          variant="destructive"
-          className="w-full h-16 bg-red-50 hover:bg-red-100 text-red-500 border-0 shadow-[0_4px_0_rgb(254,202,202)] hover:translate-y-[2px] hover:shadow-[0_2px_0_rgb(254,202,202)] active:translate-y-[4px] active:shadow-none rounded-xl lg:rounded-2xl transition-all"
-          onClick={onBackspace}
+        <motion.button
+          key={key}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.94 }}
+          type="button"
+          className={`w-full ${buttonHeight} font-extrabold rounded-lg shadow-xs cursor-pointer flex items-center justify-center transition-all ${
+            darkTheme
+              ? 'bg-[#475569] hover:bg-[#64748B] text-white border border-[#64748B]/50'
+              : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/80'
+          }`}
+          onClick={() => onKeyPress(key)}
         >
-          <Delete className="w-6 h-6" />
-        </Button>
-      </motion.div>
+          {key}
+        </motion.button>
+      ))}
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.94 }}
+        type="button"
+        className={`w-full ${buttonHeight} rounded-lg shadow-xs cursor-pointer flex items-center justify-center transition-all ${
+          darkTheme
+            ? 'bg-[#7F1D1D] hover:bg-[#991B1B] text-white border border-red-900/60'
+            : 'bg-red-50/80 hover:bg-red-100 text-red-600 border border-red-200/60'
+        }`}
+        onClick={onBackspace}
+        title="Backspace"
+      >
+        <Delete className={isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4 sm:w-5 sm:h-5'} />
+      </motion.button>
     </div>
   );
 };
+
+
 
 

@@ -9,6 +9,8 @@ interface SummaryCardsProps {
   discount: number;
   total: number;
   amountDue: number;
+  onHold?: () => void;
+  onRecall?: () => void;
 }
 
 export const SummaryCards: React.FC<SummaryCardsProps> = ({
@@ -17,53 +19,86 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
   vat,
   discount,
   total,
-  amountDue
+  amountDue,
+  onHold,
+  onRecall,
 }) => {
   return (
-    <div className="p-4 md:p-5 flex flex-col space-y-4 bg-white/80 backdrop-blur-md rounded-t-3xl border-t border-white shadow-[0_-10px_40px_rgba(0,0,0,0.03)] z-20 relative mt-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-sm px-2 gap-4 md:gap-0">
-        <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 text-slate-600 font-semibold w-full md:w-auto">
-          <span className="flex flex-col">
-            <span className="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Qty</span>
-            <span className="text-lg text-slate-700 font-black">{totalQty}</span>
-          </span>
-          <span className="flex flex-col">
-            <span className="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Subtotal</span>
-            <span className="text-lg text-slate-700 font-black">{subtotal.toFixed(2)}</span>
-          </span>
-          <span className="flex flex-col">
-            <span className="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">VAT 15%</span>
-            <span className="text-lg text-slate-700 font-black">{vat.toFixed(2)}</span>
-          </span>
-          <span className="flex flex-col">
-            <span className="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Total</span>
-            <span className="text-lg text-slate-700 font-black">{total.toFixed(2)}</span>
-          </span>
-          <span className="flex flex-col text-red-500">
-            <span className="text-red-400/80 text-[10px] uppercase tracking-widest mb-1 font-bold">Disc.</span>
-            <span className="text-lg font-black">{discount.toFixed(2)}</span>
-          </span>
-        </div>
+    <div className="px-4 py-2 bg-slate-900 text-slate-100 border-t border-slate-800 z-30 select-none shrink-0 shadow-lg">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+        
+        {/* Left Side: Inline Metrics (Qty, Subtotal, VAT, Total, Disc) */}
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="flex items-center space-x-1">
+            <span className="text-slate-400 font-sans text-[11px]">Qty:</span>
+            <span className="font-extrabold text-white">{totalQty}</span>
+          </div>
 
-        <div className="flex items-center space-x-4 w-full md:w-auto justify-end md:justify-start border-t md:border-0 border-slate-200 pt-3 md:pt-0">
-          <div className="flex flex-col items-end">
-            <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Amount Due</span>
-            <span className="text-[2.5rem] font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-500 leading-none drop-shadow-sm">
-              {amountDue.toFixed(2)}
-            </span>
+          <div className="h-3 w-px bg-slate-800 hidden sm:block" />
+
+          <div className="flex items-center space-x-1">
+            <span className="text-slate-400 font-sans text-[11px]">Sub:</span>
+            <span className="font-bold text-slate-200">{subtotal.toFixed(2)}</span>
+          </div>
+
+          <div className="h-3 w-px bg-slate-800 hidden sm:block" />
+
+          <div className="flex items-center space-x-1">
+            <span className="text-slate-400 font-sans text-[11px]">VAT (15%):</span>
+            <span className="font-bold text-slate-200">{vat.toFixed(2)}</span>
+          </div>
+
+          <div className="h-3 w-px bg-slate-800 hidden sm:block" />
+
+          <div className="flex items-center space-x-1">
+            <span className="text-slate-400 font-sans text-[11px]">Total:</span>
+            <span className="font-bold text-slate-200">{total.toFixed(2)}</span>
+          </div>
+
+          <div className="h-3 w-px bg-slate-800 hidden md:block" />
+
+          <div className="hidden md:flex items-center space-x-1">
+            <span className="text-slate-400 font-sans text-[11px]">Disc:</span>
+            <span className="font-bold text-slate-200">{discount.toFixed(2)}</span>
           </div>
         </div>
-      </div>
 
-      <div className="flex space-x-3 pt-2">
-        <Button variant="outline" className="flex-1">
-          <PauseCircle /> Hold
-        </Button>
-        <Button variant="outline" className="flex-1">
-          <RotateCcw /> Recall
-        </Button>
+        {/* Right Side: Amount Due & Quick Control Buttons */}
+        <div className="flex items-center space-x-3 ml-auto">
+          {/* Glowing Amount Due */}
+          <div className="flex items-center space-x-1.5 bg-slate-800/90 px-3 py-1 rounded-lg border border-slate-700">
+            <span className="text-slate-400 font-sans text-[10px] uppercase font-bold tracking-wider">Due:</span>
+            <span className="text-base sm:text-lg font-black text-emerald-400 font-mono">
+              SAR {amountDue.toFixed(2)}
+            </span>
+          </div>
+
+          {/* Action Buttons: Hold & Recall */}
+          <div className="flex items-center space-x-1.5">
+            <Button 
+              type="button" 
+              onClick={onHold}
+              className="h-8 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs rounded-lg border border-amber-500/40 px-2.5 cursor-pointer transition-all active:scale-95"
+            >
+              <PauseCircle className="w-3.5 h-3.5 mr-1 text-amber-400" /> Hold
+            </Button>
+
+            <Button 
+              type="button" 
+              onClick={onRecall}
+              className="h-8 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 font-bold text-xs rounded-lg border border-indigo-500/40 px-2.5 cursor-pointer transition-all active:scale-95"
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1 text-indigo-400" /> Recall
+            </Button>
+          </div>
+        </div>
+
       </div>
     </div>
   );
 };
+
+
+
+
 

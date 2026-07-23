@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import type { Product } from '@/types/pos';
-import { Heart, Tag } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Star, Tag, ChevronDown, ChevronUp, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface FavoritesProps {
   favorites: Product[];
@@ -9,39 +9,115 @@ interface FavoritesProps {
 }
 
 export const Favorites: React.FC<FavoritesProps> = ({ favorites, onAddProduct }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = direction === 'left' ? -200 : 200;
+      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="p-4 lg:p-5 bg-slate-50/50">
-      <div className="flex items-center mb-4 px-1">
-        <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-          <Heart className="w-4 h-4 text-blue-600 fill-blue-500" />
+    <div className="bg-slate-50/90 border-t border-slate-200/80 select-none px-4 py-1.5 transition-all shrink-0">
+      {/* Header Bar with Collapse Toggle */}
+      <div className="flex items-center justify-between">
+        <div 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center space-x-2 cursor-pointer group py-0.5"
+        >
+          <div className="w-4 h-4 bg-amber-100 rounded flex items-center justify-center shadow-2xs group-hover:bg-amber-200 transition-colors">
+            <Star className="w-2.5 h-2.5 text-amber-600 fill-amber-500" />
+          </div>
+          <h3 className="text-[11px] font-black text-slate-700 uppercase tracking-wider group-hover:text-slate-900">
+            Quick Favorites
+          </h3>
+          <span className="bg-slate-200 text-slate-700 text-[9px] font-bold px-1.5 py-0.1 rounded-full font-mono">
+            {favorites.length}
+          </span>
         </div>
-        <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Favorites</h3>
-      </div>
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3">
-        {favorites.map((product) => (
-          <motion.button
-            whileHover={{ y: -2, scale: 1.02 }}
-            whileTap={{ scale: 0.96 }}
-            key={product.id}
-            onClick={() => onAddProduct(product)}
-            className="flex flex-col items-start p-3 lg:p-4 bg-slate-900 rounded-xl border border-slate-800 hover:border-blue-500 hover:shadow-[0_8px_20px_rgb(59,130,246,0.2)] transition-all text-left shadow-md group relative overflow-hidden h-24 justify-between"
-          >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-colors pointer-events-none" />
-            
-            <span className="text-xs lg:text-sm font-bold text-white line-clamp-2 leading-tight z-10">{product.name}</span>
-            <div className="flex justify-between items-end w-full z-10 mt-2">
-              <span className="text-[10px] text-slate-400 font-medium">{product.id}</span>
-              <span className="text-xs font-black text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded-md flex items-center">
-                <Tag className="w-3 h-3 mr-1 opacity-70" />
-                {product.price.toFixed(2)}
-              </span>
+
+        <div className="flex items-center space-x-2">
+          {/* Scroll Navigation Buttons (Visible when expanded) */}
+          {isExpanded && (
+            <div className="flex items-center space-x-1 border-r border-slate-200 pr-2">
+              <button
+                type="button"
+                onClick={() => scroll('left')}
+                className="w-5 h-5 bg-white hover:bg-slate-200 text-slate-600 rounded flex items-center justify-center border border-slate-200 shadow-2xs cursor-pointer transition-colors"
+                title="Scroll Left"
+              >
+                <ChevronLeft className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll('right')}
+                className="w-5 h-5 bg-white hover:bg-slate-200 text-slate-600 rounded flex items-center justify-center border border-slate-200 shadow-2xs cursor-pointer transition-colors"
+                title="Scroll Right"
+              >
+                <ChevronRight className="w-3 h-3" />
+              </button>
             </div>
-          </motion.button>
-        ))}
+          )}
+
+          {/* Toggle Expand/Hide */}
+          <button 
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center space-x-1 font-semibold cursor-pointer px-1.5 py-0.5 rounded hover:bg-slate-200/70 transition-colors"
+          >
+            <span>{isExpanded ? 'Hide' : 'Quick Add +'}</span>
+            {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+          </button>
+        </div>
       </div>
+
+      {/* Horizontal Strip for Favorites (Hidden Native Scrollbar) */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="pt-2 pb-1"
+          >
+            <div 
+              ref={scrollContainerRef}
+              className="flex items-center space-x-2.5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-0.5 py-0.5"
+            >
+              {favorites.map((product) => (
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  key={product.id}
+                  onClick={() => onAddProduct(product)}
+                  className="flex items-center space-x-2.5 px-3 py-1.5 bg-white hover:bg-blue-50/70 rounded-xl border border-slate-200/90 hover:border-blue-400 shadow-2xs hover:shadow-xs transition-all text-left cursor-pointer shrink-0 group"
+                >
+                  <div className="w-5 h-5 bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white rounded-full flex items-center justify-center transition-colors">
+                    <Plus className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span className="text-xs font-bold text-slate-800 group-hover:text-blue-700 whitespace-nowrap uppercase tracking-tight">
+                    {product.name}
+                  </span>
+                  <span className="text-[11px] font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100/80 flex items-center font-mono shadow-2xs">
+                    <Tag className="w-2.5 h-2.5 mr-1 opacity-70" />
+                    {product.price.toFixed(2)}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
+
+
+
+
+
+
 
 
