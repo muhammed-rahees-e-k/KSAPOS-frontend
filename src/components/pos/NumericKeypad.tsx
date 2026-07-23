@@ -19,7 +19,9 @@ export const NumericKeypad: React.FC<NumericKeypadProps> = ({
 }) => {
   const keys = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.'];
 
-  const buttonHeight = isCompact ? 'h-7 sm:h-7.5 md:h-8 text-sm sm:text-base' : 'h-8 sm:h-9 md:h-9.5 text-base sm:text-lg';
+  const buttonHeight = isCompact 
+    ? 'h-7 sm:h-7.5 md:h-8 xl:h-8.5 text-sm sm:text-base xl:text-lg' 
+    : 'h-8 sm:h-9 md:h-9.5 xl:h-10.5 2xl:h-11 text-base sm:text-lg xl:text-xl 2xl:text-2xl';
 
   return (
     <div className="grid grid-cols-3 gap-1 select-none">

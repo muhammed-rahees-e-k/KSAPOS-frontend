@@ -383,7 +383,7 @@ export default function POS() {
       <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden bg-slate-100">
         
         {/* Left Panel: Invoice Details, Cart Table, Favorites, Summary */}
-        <div className="w-full lg:w-[65%] flex flex-col h-full bg-white relative border-r border-slate-200/80 shadow-xs">
+        <div className="w-full lg:w-[63%] xl:w-[67%] 2xl:w-[70%] flex flex-col h-full bg-white relative border-r border-slate-200/80 shadow-xs">
           <CustomerCard 
             invoiceNumber="INV-000044" 
             customer={customer}
@@ -413,7 +413,7 @@ export default function POS() {
         </div>
 
         {/* Right Panel: Payment Controls & Keypad */}
-        <div className="w-full lg:w-[35%] flex flex-col h-full bg-[#23303F] shrink-0 overflow-hidden">
+        <div className="w-full lg:w-[37%] xl:w-[33%] 2xl:w-[30%] max-w-full 2xl:max-w-[480px] flex flex-col h-full bg-[#23303F] shrink-0 overflow-hidden">
           <PaymentPanel 
             amountDue={amountDue}
             cashTendered={cashTendered}
